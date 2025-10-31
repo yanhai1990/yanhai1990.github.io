@@ -1,4 +1,4 @@
-/* Ò³ÃæÕûÌåÑùÊ½ */
+/* é¡µé¢æ•´ä½“æ ·å¼ */
 body {
   font-family: Arial;
   text-align: center;
@@ -11,29 +11,29 @@ body {
   margin: 0 auto;
 }
 
-/* Ó²±ÒÑùÊ½ */
+/* ç¡¬å¸æ ·å¼ */
 .coin {
   width: 200px;
   height: 200px;
   margin: 30px auto;
   position: relative;
-  perspective: 1000px; /* 3DĞ§¹û */
+  perspective: 1000px; /* 3Dæ•ˆæœ */
 }
 
 .side {
   width: 100%;
   height: 100%;
-  border-radius: 50%; /* Ô²ĞÎÓ²±Ò */
+  border-radius: 50%; /* åœ†å½¢ç¡¬å¸ */
   position: absolute;
-  backface-visibility: hidden; /* Òş²Ø±³Ãæ */
+  backface-visibility: hidden; /* éšè—èƒŒé¢ */
 }
 
-/* ³õÊ¼Ö»ÏÔÊ¾ÕıÃæ */
+/* åˆå§‹åªæ˜¾ç¤ºæ­£é¢ */
 .back {
-  transform: rotateY(180deg); /* ·´Ãæ·­×ª180¶È£¨³õÊ¼Òş²Ø£© */
+  transform: rotateY(180deg); /* åé¢ç¿»è½¬180åº¦ï¼ˆåˆå§‹éšè—ï¼‰ */
 }
 
-/* °´Å¥ÑùÊ½ */
+/* æŒ‰é’®æ ·å¼ */
 button {
   padding: 10px 20px;
   font-size: 18px;
@@ -48,7 +48,7 @@ button:hover {
   background-color: #45a049;
 }
 
-/* ½á¹ûÎÄ×Ö */
+/* ç»“æœæ–‡å­— */
 #result {
   font-size: 24px;
   margin-top: 20px;
