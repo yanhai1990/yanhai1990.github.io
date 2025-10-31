@@ -1,23 +1,270 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
-  <title>简单抛硬币</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>抛硬币模拟器</title>
+  <!-- 引入Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- 引入Font Awesome -->
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <!-- 配置Tailwind -->
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: '#3B82F6',
+            secondary: '#10B981',
+            neutral: '#64748B',
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .coin-shadow {
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.3), inset 0 0 10px rgba(0, 0, 0, 0.5);
+      }
+      .coin-edge {
+        box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.5);
+      }
+      .flip-animation {
+        animation: flip 1.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+      }
+      .stats-appear {
+        animation: fadeInUp 0.5s ease-out forwards;
+      }
+      @keyframes flip {
+        0% { transform: rotateX(0deg) translateY(0); }
+        25% { transform: rotateX(180deg) translateY(-50px); }
+        50% { transform: rotateX(360deg) translateY(-100px); }
+        75% { transform: rotateX(540deg) translateY(-50px); }
+        100% { transform: rotateX(720deg) translateY(0); }
+      }
+      @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+    }
+  </style>
 </head>
-<body>
-  <div class="container">
-    <h1>抛硬币模拟器</h1>
-    <!-- 硬币显示区域 -->
-    <div class="coin" id="coin">
-      <img src="https://cdn-icons-png.flaticon.com/512/3955/3955023.png" alt="正面" class="side front">
-      <img src="https://cdn-icons-png.flaticon.com/512/3955/3955033.png" alt="反面" class="side back">
+
+<body class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 transition-colors duration-300 flex flex-col items-center justify-between p-4 md:p-8">
+  <!-- 头部 -->
+  <header class="w-full max-w-3xl text-center mb-8">
+    <h1 class="text-[clamp(2rem,5vw,3rem)] font-bold text-gray-800 dark:text-white mb-2">抛硬币模拟器</h1>
+    <p class="text-gray-600 dark:text-gray-300 text-lg">体验公平的随机硬币抛掷，查看统计结果</p>
+  </header>
+
+  <!-- 主要内容区 -->
+  <main class="w-full max-w-3xl flex flex-col items-center flex-grow">
+    <!-- 硬币容器 -->
+    <div class="relative w-full max-w-xs aspect-square mb-12 flex items-center justify-center perspective-1000">
+      <div id="coin" class="w-64 h-64 md:w-80 md:h-80 rounded-full coin-shadow relative transform-style-3d transition-all duration-300 cursor-pointer">
+        <!-- 正面 -->
+        <div id="heads" class="absolute w-full h-full rounded-full bg-gradient-to-br from-yellow-200 to-yellow-400 flex items-center justify-center backface-hidden coin-edge">
+          <span class="text-6xl md:text-8xl font-bold text-yellow-600">1</span>
+        </div>
+        <!-- 反面 -->
+        <div id="tails" class="absolute w-full h-full rounded-full bg-gradient-to-br from-gray-200 to-gray-400 flex items-center justify-center backface-hidden coin-edge rotate-x-180">
+          <span class="text-6xl md:text-8xl font-bold text-gray-700">¥</span>
+        </div>
+      </div>
+      <!-- 硬币阴影 -->
+      <div class="absolute -bottom-4 w-56 h-12 md:w-72 md:h-16 bg-black/20 rounded-full blur-md transform scale-x-80"></div>
     </div>
-    <!-- 抛硬币按钮 -->
-    <button onclick="flipCoin()">点击抛硬币</button>
-    <!-- 结果提示 -->
-    <p id="result"></p>
-  </div>
-  <script src="script.js"></script>
+
+    <!-- 控制按钮 -->
+    <button id="flip-btn" class="bg-primary hover:bg-primary/90 text-white font-bold py-3 px-8 rounded-full shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 mb-12 flex items-center gap-2">
+      <i class="fa fa-refresh"></i>
+      <span>抛硬币</span>
+    </button>
+
+    <!-- 结果显示 -->
+    <div id="result" class="text-center mb-12 hidden">
+      <h2 class="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white mb-2 stats-appear" style="animation-delay: 0.1s">结果: <span id="result-text" class="text-primary"></span></h2>
+      <p class="text-gray-600 dark:text-gray-300 stats-appear" style="animation-delay: 0.2s">这是第 <span id="flip-count" class="font-bold">1</span> 次抛掷</p>
+    </div>
+
+    <!-- 统计数据 -->
+    <div class="w-full bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-8 stats-appear" style="animation-delay: 0.3s">
+      <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4 text-center">统计结果</h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 text-center">
+          <p class="text-gray-600 dark:text-gray-300 mb-1">正面 (1)</p>
+          <p id="heads-count" class="text-2xl font-bold text-yellow-600">0</p>
+          <div class="mt-2 h-2 bg-gray-200 dark:bg-gray-600 rounded-full overflow-hidden">
+            <div id="heads-bar" class="h-full bg-yellow-500 w-0 transition-all duration-500"></div>
+          </div>
+          <p id="heads-percent" class="text-sm text-gray-500 dark:text-gray-400 mt-1">0%</p>
+        </div>
+        
+        <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 text-center">
+          <p class="text-gray-600 dark:text-gray-300 mb-1">反面 (¥)</p>
+          <p id="tails-count" class="text-2xl font-bold text-gray-700 dark:text-gray-300">0</p>
+          <div class="mt-2 h-2 bg-gray-200 dark:bg-gray-600 rounded-full overflow-hidden">
+            <div id="tails-bar" class="h-full bg-gray-500 w-0 transition-all duration-500"></div>
+          </div>
+          <p id="tails-percent" class="text-sm text-gray-500 dark:text-gray-400 mt-1">0%</p>
+        </div>
+        
+        <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 text-center">
+          <p class="text-gray-600 dark:text-gray-300 mb-1">总次数</p>
+          <p id="total-count" class="text-2xl font-bold text-primary">0</p>
+          <div class="mt-4">
+            <button id="reset-btn" class="text-neutral hover:text-primary dark:text-gray-400 dark:hover:text-white transition-colors duration-300 text-sm flex items-center gap-1 mx-auto">
+              <i class="fa fa-trash-o"></i>
+              <span>重置统计</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- 页脚 -->
+  <footer class="w-full max-w-3xl text-center text-gray-500 dark:text-gray-400 text-sm">
+    <div class="flex items-center justify-center gap-4 mb-4">
+      <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-300">
+        <i class="fa fa-moon-o dark:hidden"></i>
+        <i class="fa fa-sun-o hidden dark:inline-block"></i>
+      </button>
+    </div>
+    <p>© 2023 抛硬币模拟器 | 公平随机模拟</p>
+  </footer>
+
+  <script>
+    // 获取DOM元素
+    const coin = document.getElementById('coin');
+    const flipBtn = document.getElementById('flip-btn');
+    const resetBtn = document.getElementById('reset-btn');
+    const result = document.getElementById('result');
+    const resultText = document.getElementById('result-text');
+    const flipCount = document.getElementById('flip-count');
+    const headsCount = document.getElementById('heads-count');
+    const tailsCount = document.getElementById('tails-count');
+    const totalCount = document.getElementById('total-count');
+    const headsBar = document.getElementById('heads-bar');
+    const tailsBar = document.getElementById('tails-bar');
+    const headsPercent = document.getElementById('heads-percent');
+    const tailsPercent = document.getElementById('tails-percent');
+    const themeToggle = document.getElementById('theme-toggle');
+    
+    // 初始化统计数据
+    let stats = {
+      heads: 0,
+      tails: 0,
+      total: 0
+    };
+    
+    // 检查深色模式偏好
+    if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    
+    // 主题切换
+    themeToggle.addEventListener('click', () => {
+      document.documentElement.classList.toggle('dark');
+      localStorage.theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+    });
+    
+    // 抛硬币函数
+    function flipCoin() {
+      // 禁用按钮防止重复点击
+      flipBtn.disabled = true;
+      flipBtn.classList.add('opacity-70', 'cursor-not-allowed');
+      
+      // 重置硬币状态
+      coin.classList.remove('flip-animation');
+      void coin.offsetWidth; // 触发重绘
+      
+      // 添加动画类
+      coin.classList.add('flip-animation');
+      
+      // 显示结果区域
+      result.classList.remove('hidden');
+      
+      // 随机决定结果
+      const isHeads = Math.random() < 0.5;
+      
+      // 动画结束后更新结果
+      setTimeout(() => {
+        // 更新硬币显示
+        if (isHeads) {
+          coin.style.transform = 'rotateX(0deg)';
+          resultText.textContent = '正面 (1)';
+          resultText.classList.remove('text-gray-700');
+          resultText.classList.add('text-yellow-600');
+          stats.heads++;
+        } else {
+          coin.style.transform = 'rotateX(180deg)';
+          resultText.textContent = '反面 (¥)';
+          resultText.classList.remove('text-yellow-600');
+          resultText.classList.add('text-gray-700', 'dark:text-gray-300');
+          stats.tails++;
+        }
+        
+        // 更新统计数据
+        stats.total++;
+        updateStats();
+        
+        // 启用按钮
+        flipBtn.disabled = false;
+        flipBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+      }, 1500); // 与动画持续时间一致
+    }
+    
+    // 更新统计数据显示
+    function updateStats() {
+      const headsPercentValue = stats.total > 0 ? Math.round((stats.heads / stats.total) * 100) : 0;
+      const tailsPercentValue = 100 - headsPercentValue;
+      
+      headsCount.textContent = stats.heads;
+      tailsCount.textContent = stats.tails;
+      totalCount.textContent = stats.total;
+      flipCount.textContent = stats.total;
+      
+      headsBar.style.width = `${headsPercentValue}%`;
+      tailsBar.style.width = `${tailsPercentValue}%`;
+      
+      headsPercent.textContent = `${headsPercentValue}%`;
+      tailsPercent.textContent = `${tailsPercentValue}%`;
+    }
+    
+    // 重置统计数据
+    function resetStats() {
+      stats = {
+        heads: 0,
+        tails: 0,
+        total: 0
+      };
+      coin.style.transform = 'rotateX(0deg)';
+      result.classList.add('hidden');
+      updateStats();
+    }
+    
+    // 事件监听
+    flipBtn.addEventListener('click', flipCoin);
+    resetBtn.addEventListener('click', resetStats);
+    coin.addEventListener('click', flipCoin);
+    
+    // 初始化页面
+    updateStats();
+  </script>
 </body>
   <a href="https://icp.gov.moe/?keyword=20250551" target="_blank">萌ICP备20250551号</a>
 </html>
+
