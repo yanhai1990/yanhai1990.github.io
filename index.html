@@ -1,30 +1,23 @@
-let isFlipping = false; // ·ÀÖ¹Á¬Ğøµã»÷
-
-function flipCoin() {
-  if (isFlipping) return; // Èç¹ûÕıÔÚÅ×Ó²±Ò£¬²»ÖØ¸´Ö´ĞĞ
-  isFlipping = true;
-
-  const coin = document.getElementById('coin');
-  const result = document.getElementById('result');
-  
-  // Ëæ»úÉú³É0»ò1£¨0=ÕıÃæ£¬1=·´Ãæ£©
-  const random = Math.floor(Math.random() * 2);
-  
-  // Ìí¼ÓĞı×ª¶¯»­£¨Ä£ÄâÅ×Ó²±Ò¹ı³Ì£©
-  coin.style.transition = "transform 1s ease-in-out";
-  coin.style.transform = "rotateY(1800deg)"; // Ğı×ª5È¦£¨1800¶È£©
-  
-  // ¶¯»­½áÊøºóÏÔÊ¾½á¹û
-  setTimeout(() => {
-    if (random === 0) {
-      // ÏÔÊ¾ÕıÃæ
-      coin.style.transform = "rotateY(0deg)";
-      result.textContent = "½á¹û£ºÕıÃæ£¡";
-    } else {
-      // ÏÔÊ¾·´Ãæ
-      coin.style.transform = "rotateY(180deg)";
-      result.textContent = "½á¹û£º·´Ãæ£¡";
-    }
-    isFlipping = false; // ÔÊĞíÔÙ´Îµã»÷
-  }, 1000); // 1ÃëºóÏÔÊ¾½á¹û£¨Óë¶¯»­Ê±¼äÒ»ÖÂ£©
-}
+<!DOCTYPE html>
+<html>
+<head>
+  <title>ç®€å•æŠ›ç¡¬å¸</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>æŠ›ç¡¬å¸æ¨¡æ‹Ÿå™¨</h1>
+    <!-- ç¡¬å¸æ˜¾ç¤ºåŒºåŸŸ -->
+    <div class="coin" id="coin">
+      <img src="https://cdn-icons-png.flaticon.com/512/3955/3955023.png" alt="æ­£é¢" class="side front">
+      <img src="https://cdn-icons-png.flaticon.com/512/3955/3955033.png" alt="åé¢" class="side back">
+    </div>
+    <!-- æŠ›ç¡¬å¸æŒ‰é’® -->
+    <button onclick="flipCoin()">ç‚¹å‡»æŠ›ç¡¬å¸</button>
+    <!-- ç»“æœæç¤º -->
+    <p id="result"></p>
+  </div>
+  <script src="script.js"></script>
+</body>
+  <a href="https://icp.gov.moe/?keyword=20250551" target="_blank">èŒICPå¤‡20250551å·</a>
+</html>
